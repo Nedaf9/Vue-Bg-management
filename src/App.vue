@@ -15,4 +15,8 @@ html,body,#app{
   padding: 0;
   box-sizing: border-box;
 }
+a{
+  text-decoration: none;
+  color: #20a53a;
+}
 </style>
