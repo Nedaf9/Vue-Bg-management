@@ -12,8 +12,8 @@ const routes = [
     children: [
       {
         path: '',
-        name: 'ftp',
-        component: () => import('../components/dashboard/ftp')
+        name: 'Document',
+        component: () => import('../components/dashboard/Document')
       },
 
     ]

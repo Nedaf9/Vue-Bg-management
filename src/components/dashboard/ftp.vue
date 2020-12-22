@@ -121,7 +121,7 @@
               <el-dialog :visible.sync="administration" width="30%">
                 <span></span>
                 <span slot="footer">
-                  <el-button type="primary" @click="administration">保存</el-button>
+                  <el-button type="primary" @click="administration_1">保存</el-button>
                 </span>
               </el-dialog>
               <!-- 改密 ****************************************************-->
@@ -215,7 +215,11 @@ export default {
     refresh: function () {
       this.num1 = parseInt(Math.random() * 10);
       this.num2 = parseInt(Math.random() * 10);
-    },
+		},
+		administration_1:function(){
+			console.log('可以');
+			this.administration = false
+		}
   },
 };
 </script>
