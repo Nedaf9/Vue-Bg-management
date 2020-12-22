@@ -12,9 +12,10 @@ const routes = [
     children: [
       {
         path: '',
-        name: 'Home',
-        component: () => import('../components/dashboard/Home')
-      }
+        name: 'ftp',
+        component: () => import('../components/dashboard/ftp')
+      },
+
     ]
   },
   {
