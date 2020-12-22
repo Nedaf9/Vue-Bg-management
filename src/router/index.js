@@ -14,8 +14,7 @@ const routes = [
         path: '',
         name: 'Document',
         component: () => import('../components/dashboard/Document')
-      },
-
+      }
     ]
   },
   {
