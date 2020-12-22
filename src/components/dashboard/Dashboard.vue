@@ -17,7 +17,6 @@ export default {
 
 <style lang="less">
 .app-dashboard {
-  background: #fff;
   height: 100%;
 }
 //修改默认滚动条
@@ -44,7 +43,6 @@ export default {
 .app-dashboard-right {
   width: calc(100% - 188px);
   height: 100%;
-  background: #F2F2F2;
   float: left;
 }
 </style>
