@@ -123,7 +123,7 @@
           <el-col class="flux">
             <el-row class="common-hd">流量</el-row>
             <el-row class="flux-bd">
-
+              <app-flux></app-flux>
             </el-row>
           </el-col>
         </el-row>
@@ -133,12 +133,10 @@
 </template>
 
 <script>
+import flux from '../charts/flux'
 export default {
-  components: {},
-  data () {
-    return {
-      url: '../../assets/home/ico-iis.png',
-    }
+  components: {
+    "app-flux":flux,
   }
 };
 </script>
@@ -297,6 +295,10 @@ export default {
         margin-left: 15px;
         width: calc(50% - 7.5px);
         height: 470px;
+
+        .flux-bd {
+          height: 100%;
+        }
       }
     }
   }
