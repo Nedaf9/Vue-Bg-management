@@ -9,6 +9,7 @@
 html,body,#app{
   height: 100%;
   width: 100%;
+  background: #F2F2F2;
 }
 * {
   margin: 0;
