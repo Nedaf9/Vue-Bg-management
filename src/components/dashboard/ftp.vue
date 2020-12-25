@@ -21,13 +21,16 @@
             size="normal"
           >
             <el-form-item label="用户名">
-              <el-input v-model="addFtpForm.ftpName"></el-input>
+              <el-input v-model="addFtpForm.name"></el-input>
             </el-form-item>
             <el-form-item label="密码">
-              <el-input v-model="addFtpForm.ftpPass"></el-input>
+              <el-input v-model="addFtpForm.pass"></el-input>
             </el-form-item>
             <el-form-item label="根目录">
-              <el-input v-model="addftpRoot"></el-input>
+              <el-input v-model="addFtpForm.rootDirectory"></el-input>
+            </el-form-item>
+            <el-form-item label="备注">
+              <el-input v-model="addFtpForm.remark"></el-input>
             </el-form-item>
           </el-form>
           <p class="form-tip">
@@ -39,12 +42,12 @@
 
           <span slot="footer">
             <el-button @click="addFtp = false">关闭</el-button>
-            <el-button type="primary" @click="addFtp = false">提交</el-button>
+            <el-button type="primary" @click="AddFtp">提交</el-button>
           </span>
         </el-dialog>
         <!-- 添加FTP结束 -->
-        <!-- 修改FTP开始 -->
         <button class="modification" @click="modification = true">
+          <!-- 修改FTP开始 -->
           修改FTP端口
         </button>
         <el-dialog title="修改FTP" :visible.sync="modification" width="40%">
@@ -67,8 +70,10 @@
           </span>
         </el-dialog>
         <!-- 修改FTP结束 -->
-        <!-- 删除FTP开始 -->
-        <button class="delete" @click="del = true">删除选中</button>
+        <button class="delete" @click="del = true" v-show="delActive">
+          删除选中
+        </button>
+        <!---删除FTP开始 -->
         <el-dialog
           title="是否批量删除选中的FTP账号?"
           :visible.sync="del"
@@ -94,48 +99,157 @@
         <!-- 删除FTP结束 -->
       </div>
       <table class="ftp-content">
+        <!-- 表格开始 -->
         <thead>
           <tr style="text-align: left">
-            <th width="50"><input type="checkbox" name="" id="" /></th>
-            <th>用户名</th>
-            <th>密码</th>
+            <th width="50">
+              <input type="checkbox" v-model="selectAll" @click="select_All" />
+            </th>
+            <th width="20%">用户名</th>
+            <th width="15%">密码</th>
             <th>状态</th>
             <th>根目录</th>
             <th>备注</th>
-            <th style="text-align: right">操作</th>
+            <th width="130">操作</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="item in FtpData" :key="item.id">
-            <td><input type="checkbox" /></td>
-            <td>{{ item.name }}</td>
-            <td>{{ item.pass }}</td>
-            <td>{{ (item.status = 1 ? "已启用" : "已停用") }}</td>
-            <td>{{ item.rootDirectory }}</td>
+        <tbody @change="select()">
+          <tr v-for="(item,index) in FtpData" :key="item.id">
+            <td><input type="checkbox" v-model="item.checked" /></td>
+            <td><span>{{ item.name }}</span></td>
+            <td><span>{{item.showpass ?item.pass :'***********'}}</span><i class="el-icon-view" @click="handleclick(index)"></i></td>
+            <td :class="{ fcStart: item.status == 1 ? true : false }">
+              {{ item.status == 1 ? "已启用" : "已停用" }}<i class="el-icon-loading"></i>
+            </td>
+            <td><span>{{ item.rootDirectory }}</span></td>
             <td>{{ item.remark }}</td>
-            <td style="text-align: right">
-              <span @click="administration = true">管理</span>|
-              <span @click="ToClose = true">改密</span>|
-              <span @click="removeFtp = true">删除</span>
-              <!-- 管理*************************************************** -->
-              <el-dialog :visible.sync="administration" width="30%">
-                <span></span>
+            <td>
+              <span @click="item.checkAd = true">管理</span>|
+              <span @click="item.checkClose = true">改密</span>|
+              <span @click="item.checkDel= true">删除</span>
+              <!-- ************************************************************************************************** 管理-->
+              <el-dialog
+                :visible.sync="item.checkAd"
+                width="30%"
+                title="FTP高级管理"
+                
+              >
+                <hr style="margin: -30px 0 20px 0" />
+                <el-form
+                  label-width="80px"
+                  :inline="false"
+                  size="normal"
+                >
+                  <el-form-item label="下载限速">
+                    <el-input-number
+                      v-model="item.ftp_administration.Download_speed_limit"
+                      controls-position="right"
+                    ></el-input-number
+                    >KB
+                  </el-form-item>
+                  <el-form-item label="上传限速">
+                    <el-input-number
+                      v-model="item.ftp_administration.Upload_speed_limit"
+                      controls-position="right"
+                    ></el-input-number
+                    >KB
+                  </el-form-item>
+                  <el-form-item label="读写权限">
+                    <el-switch
+                      v-model="item.ftp_administration.permisson.lead"
+                      active-color="#13ce66"
+                      inactive-color="#ff4949"
+                    >
+                    </el-switch>
+                    读取
+                    <el-switch
+                      v-model="item.ftp_administration.permisson.leadin"
+                      active-color="#13ce66"
+                      inactive-color="#ff4949"
+                    >
+                    </el-switch>
+                    写入
+                  </el-form-item>
+                  <el-form-item label="IP黑名单" size="normal">
+                    <el-input
+                      type="textarea"
+                      :rows="3"
+                      placeholder="每行填写-个ip. 例:
+192.168.1.1
+192.168.2.1/24
+输入*.则禁止所有，可配合IP白名单使用
+"
+                      v-model="item.ftp_administration.IP_blacklist"
+                    >
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="IP白名单" size="normal">
+                    <el-input
+                      type="textarea"
+                      :rows="3"
+                      placeholder="每行填写一个ip.例:
+192.168.1.1
+192.168.2.1/24
+"
+                      v-model="item.ftp_administration.IP_whitelist"
+                    >
+                    </el-input>
+                  </el-form-item>
+                </el-form>
+                <p>●设置下载、上传限速为[0] KB,则不进行限速</p>
                 <span slot="footer">
-                  <el-button type="primary" @click="administration_1">保存</el-button>
+                  <el-button type="primary" @click="administration_save(item.checkAd)"
+                    >保存</el-button
+                  >
                 </span>
               </el-dialog>
-              <!-- 改密 ****************************************************-->
-              <el-dialog :visible.sync="ToClose" width="30%">
-                <span></span>
+              <!--  *************************************************************************************************改密-->
+              <el-dialog
+                :visible.sync="item.checkClose"
+                width="30%"
+                height="20%"
+                title="修改FTP用户密码"
+              >
+                <hr style="margin: -30px 0 50px 0" />
+                <el-form label-width="80px" :inline="false" size="normal">
+                  <el-form-item label="用户名 " size="normal">
+                    <el-input
+                      v-model="item.name"
+                      size="normal"
+                      clearable
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item label="密码 " size="normal">
+                    <el-input
+                      v-model="item.pass"
+                      size="normal"
+                      clearable
+                    ></el-input>
+                  </el-form-item>
+                </el-form>
+
                 <span slot="footer">
-                  <el-button type="primary" @click="ToClose">保存</el-button>
+                  <el-button type="primary" @click="ToClose_save(index)"
+                    >保存</el-button
+                  >
                 </span>
               </el-dialog>
-              <!-- 删除单个ftp***************************************** -->
-              <el-dialog :visible.sync="removeFtp" width="30%">
-                <span></span>
+              <!-- ******************************************************************************************* 删除单个ftp-->
+              <el-dialog
+                :visible.sync="item.checkDel "
+                width="30%"
+                :title="'删除[' + item.name + ']'"
+              >
+                <span style="font-size: 20px"
+                  >您真的要删除[{{ item.name }}]吗？</span
+                >
                 <span slot="footer">
-                  <el-button type="primary" @click="removeFtp">保存</el-button>
+                  <el-button type="info" @click="item.checkDel = false"
+                    >不了</el-button
+                  >
+                  <el-button type="primary" @click="removeFtp_save(index)"
+                    >确定</el-button
+                  >
                 </span>
               </el-dialog>
             </td>
@@ -147,84 +261,158 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   name: "ftp",
   data() {
     return {
+      showpass:false,
       addFtp: false, //   添加FTP
       modification: false, // 修改FTP
       del: false, //  删除FTP
+      //-----------------------------添加ftp表单
       addFtpForm: {
-        //添加ftp表单
-        ftpName: "",
-        ftpPass: "",
-        ftpRoot: "C:/wwwroot/",
       },
       ModifyPort: {
         //默认端口
         setting: 21,
       },
+      delActive: false, //选中删除按钮状态
       num1: "5", //随机数1
       num2: "5", //随机数2
       sum: "", //随机数和
+
+      selectAll: false,
+
+      showPass: false,
+      //---------------------------------------------------FTPData  start
       FtpData: [
-        {
-          name: "nevergiveup",
-          pass: 112335222,
-          id: 1,
-          status: 1,
-          rootDirectory: "C:/inetpub/wwwroot",
-          remark: "nevergiveup",
-        },
-        {
-          name: "谁大野去",
-          pass: 998998998,
-          id: 2,
-          status: 1,
-          rootDirectory: "C:/inetpub/wwwroot",
-          remark: "ad去了",
-        },
-        {
-          name: "谁大野去",
-          pass: 998998998,
-          id: 3,
-          status: 1,
-          rootDirectory: "C:/inetpub/wwwroot",
-          remark: "ad去了",
-        },
+        // {
+        //   name: "nevergiveup",
+        //   pass: 112335222,
+        //   id: 1,
+        //   status: 1,
+        //   rootDirectory: "C:/inetpub/wwwroot",
+        //   remark: "nevergiveup",
+        //   checked: false,
+        //   checkDel:false,
+        //   checkAd:false,
+        //   checktoClose:false,
+        //   ftp_administration: {
+        //     Download_speed_limit: 1024,
+        //     Upload_speed_limit: 1024,
+        //     permission: { read: true, readin: true },
+        //     IP_blacklist: "",
+        //     IP_whitelist: "",
+        //   },
+        // },
       ],
+      //---------------------------------------------------FTPData  end
       administration: false,
       ToClose: false,
-      removeFtp: false,
-      ftp_administration: {
-        Download_speed_limit: 1024,
-        Upload_speed_limit: 1024,
-        IP_blacklist: "",
-      },
+      //removeFtp: false,
     };
   },
-  created() {},
-  // mounted () {},
-  computed: {
-    addftpRoot: function () {
-      return this.addFtpForm.ftpRoot + this.addFtpForm.ftpName;
-    },
+  created() {
+     
   },
-  watch: {},
+  mounted() {
+    axios.get('http://rap2api.taobao.org/app/mock/273678/loadfile').then((res)=>{
+      console.log(res.data.data);
+       this.FtpData = res.data.data
+    })
+  },
+  computed: {
+    // addftpRoot: function () {
+    //   return this.addFtpForm.ftpRoot + this.addFtpForm.ftpName;
+    // },
+      
+    
+  },
+  watch: {
+   
+  },
   methods: {
     refresh: function () {
       this.num1 = parseInt(Math.random() * 10);
       this.num2 = parseInt(Math.random() * 10);
-		},
-		administration_1:function(){
-			console.log('可以');
-			this.administration = false
-		}
+    },
+
+    //---------------------------------------------------------添加FTP
+    AddFtp: function () {
+      console.log(this.addFtpForm);
+      this.FtpData.push(this.addFtpForm);
+      this.addFtp = false;
+      },
+    open(index){
+        console.log(index);
+        this.removeFtp = true
+    },
+    //-------------------------------------------------------------------操作FTP  start*/
+    administration_save: function () {
+      console.log("管理");
+      this.administration = false;
+    },
+    ToClose_save: function () {
+      console.log("改密");
+      this.ToClose = false;
+    },
+    removeFtp_save: function (index) {
+      console.log(index);
+      this.FtpData[index].checkDel = false
+      this.FtpData.splice(index,1)
+    },
+    //-------------------------------------------------------------------操作FTP  end*/
+      //---------------------------------------------显示密码
+    handleclick: function (index) {
+      this.FtpData[index].showpass = !this.FtpData[index].showpass
+      
+    },
+
+    select_All: function () {
+      //---------------------------------------全选start
+      this.FtpData.forEach((item) => {
+        item.checked = !this.selectAll;
+        if (!this.selectAll) {
+          this.delActive = true;
+        } else {
+          this.delActive = false;
+        }
+      });
+    },
+    select() {
+      let select = this.FtpData.every((item) => {
+        return item.checked;
+      });
+      this.selectAll = select;
+      if (this.selectAll) {
+        this.delActive = true;
+      } else {
+        this.delActive = false;
+      }
+    },
+    //-----------------------------------------------------------------------全选end
   },
 };
 </script>
 
 <style lang="less" scoped>
+// .display-flex{
+//   display: flex;
+//   line-height: 100%;
+// }
+
+.passShow {
+  border: none;
+  width: 100px;
+  height: 40px;
+  margin: none;
+  padding: 0 2px;
+  background-color: #fff;
+}
+.fcStart {
+  color: #10952a;
+}
 .form-tip {
   color: rgb(149, 145, 145);
   font-size: 12px;
@@ -279,7 +467,6 @@ export default {
 
       .delete {
         float: right;
-        display: block;
       }
     }
 
@@ -315,7 +502,8 @@ export default {
             }
             span {
               color: green;
-              padding: 0 3px;
+              padding: 0 3px 0 3px;
+
               cursor: pointer;
             }
           }
