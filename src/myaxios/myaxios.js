@@ -1,14 +1,16 @@
-import axios from "axios"
-let myaxios = axios.create({
-    baseURL: "http://rap2api.taobao.org/app/mock/273673/admin"
-})
-myaxios.interceptors.response.use(
+import axios from "axios";
+//1.配置公共url部分
+const instance = axios.create({
+    baseURL: "http://linweiqin.cn:8001/",
+});
+// 2.响应的拦截器
+instance.interceptors.response.use(
     function(response){
-        return response.data
+        return response.data;
     },
-    function(err){
-        return Promise.reject(err)
+    function(error){
+       return Promise.reject(error);
     }
-)
-export default  myaxios
+);
 
+export default instance;
