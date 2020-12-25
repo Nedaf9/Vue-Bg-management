@@ -10,9 +10,10 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 
 Vue.use(VueAxios, axios)
+Vue.use(ElementUI);
 
-Vue.use(ElementUI)
-Vue.prototype.$echarts = echarts
+Vue.prototype.$axios = axios
+axios.defaults.baseURL = '/api'
 Vue.config.productionTip = false
 
 new Vue({
