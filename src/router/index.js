@@ -11,18 +11,27 @@ const routes = [
     component: () => import('../components/dashboard/Dashboard'),
     children: [
       {
-        path: '',
-        name: 'Document',
-        component: () => import('../components/dashboard/Document')
+        path: '/ftp',
+        name: 'ftp',
+        component: () => import('@/components/dashboard/ftp')
       },{
-        path:'/pages',
-        name:'pages',
-        component:()=> import ('../components/dashboard/pages')
+        path:'/project',
+        name:'Project',
+        component:()=> import('@/components/dashboard/Project')
       },{
-        path:'apps',
+        path:'/set',
+        name:'Set',
+        component:()=> import('@/components/dashboard/Set')
+      },{
+        path:'/apps',
         name:'apps',
-        component:()=>import('../components/dashboard/apps')
-      }
+        component:()=>import('@/components/dashboard/apps')
+      }, {
+        path: '/document',
+        name: 'Document',
+        component: () => import('@/components/dashboard/Document')
+      },
+      
     ]
   },
   {
