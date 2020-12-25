@@ -14,6 +14,14 @@ const routes = [
         path: '',
         name: 'Document',
         component: () => import('../components/dashboard/Document')
+      },{
+        path:'/pages',
+        name:'pages',
+        component:()=> import ('../components/dashboard/pages')
+      },{
+        path:'apps',
+        name:'apps',
+        component:()=>import('../components/dashboard/apps')
       }
     ]
   },
