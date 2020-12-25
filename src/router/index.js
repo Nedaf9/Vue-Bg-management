@@ -12,8 +12,13 @@ const routes = [
     children: [
       {
         path: '',
-        name: 'Document',
-        component: () => import('../components/dashboard/Document')
+        name: 'security',
+        component: () => import('../components/dashboard/security')
+      },
+      {
+        path: '',
+        name: 'monitoring',
+        component: () => import('../components/dashboard/monitoring')
       }
     ]
   },
