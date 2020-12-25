@@ -323,8 +323,6 @@ export default {
 .cellStyle {
   font-size: 12px;
 }
-</style>
-<style lang='less' scoped>
 .clearfix:after {
   content: "";
   clear: both;
@@ -336,6 +334,9 @@ export default {
 .clearfix {
   zoom: 1;
 }
+</style>
+<style lang='less' scoped>
+
 .search-title {
   font-size: 14px;
   margin-right: 20px;

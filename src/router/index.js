@@ -22,6 +22,10 @@ const routes = [
         path:'apps',
         name:'apps',
         component:()=>import('../components/dashboard/apps')
+      },{
+        path:'pages',
+        name:'pages',
+        component:()=>import('../components/dashboard/pages')
       }
     ]
   },

@@ -5,3 +5,8 @@ export const apps = function(param){
         console.log(err);
     })
 }
+export const pages = function(param){
+    return myaxios.get("/pages",param).catch(function(err){
+        console.log(err);
+    })
+}
