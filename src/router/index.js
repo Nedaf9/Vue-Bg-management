@@ -12,8 +12,8 @@ const routes = [
     children: [
       {
         path: '',
-        name: 'Document',
-        component: () => import('../components/dashboard/Document')
+        name: 'Database',
+        component: () => import('../components/dashboard/Database')
       }
     ]
   },

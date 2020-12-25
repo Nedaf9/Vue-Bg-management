@@ -3,17 +3,15 @@
     <div class="app-home-header">
       <div class="header-left">
         <div>
-          <span class="userName">13670868807</span>
+          <span class="userName" v-text="userData.username"></span>
         </div>
         <div>
           <span>系统：</span>
-          <span class="systemType"
-            >Windows Server 2019 Datacenter (build 17763)x64(Py3.6.6)</span
-          >
+          <span class="systemType" v-text="systemStatus.system"></span>
         </div>
         <div>
           <span>已不间断运行：</span>
-          <span class="runTime">43天21小时39分</span>
+          <span class="runTime" v-text="systemStatus.runTime"></span>
         </div>
       </div>
       <div class="header-right">
@@ -30,6 +28,7 @@
       </div>
     </div>
     <div class="app-home-body">
+      <!-------------------------------------------------  状态  -------------------------------------------------------------->
       <div class="status">
         <el-row class="common-hd">状态</el-row>
         <el-row>
@@ -37,11 +36,11 @@
             <p>CPU使用率</p>
             <el-progress
               type="circle"
-              :percentage="50"
+              :percentage="parseInt(systemStatus.CPURate)"
               status="success"
               :stroke-width="6"
             ></el-progress>
-            <p>1核心</p>
+            <p v-text="systemStatus.CPURate"></p>
           </el-col>
           <el-col :span="4" :offset="0">
             <p>内存使用率</p>
@@ -51,20 +50,21 @@
               status="success"
               :stroke-width="6"
             ></el-progress>
-            <p>1112/1966(MB)</p>
+            <p v-text="systemStatus.RAMRate"></p>
           </el-col>
           <el-col :span="4" :offset="0">
             <p>C:/</p>
             <el-progress
               type="circle"
-              :percentage="50"
+              :percentage="30"
               status="success"
               :stroke-width="6"
             ></el-progress>
-            <p>14.73 GB/40.00 GB</p>
+            <p v-text="systemStatus.driver"></p>
           </el-col>
         </el-row>
       </div>
+      <!-------------------------------------------------  概览  -------------------------------------------------------------->
       <div class="overview">
         <el-row class="common-hd">概览</el-row>
         <el-row>
@@ -86,23 +86,17 @@
           </el-col>
         </el-row>
       </div>
+      <!-------------------------------------------------  底部两栏  -------------------------------------------------------------->
       <div class="bd-bottom">
         <el-row>
+      <!-------------------------------------------------  软件  -------------------------------------------------------------->
           <el-col class="software">
             <el-row class="common-hd">软件</el-row>
             <el-row class="software-bd">
               <el-row>
-                <el-col :span="6">
-                  <img src="../../assets/home/ico-iis.png" alt="">
-                  <p>IIS 10.0</p>
-                </el-col>
-                <el-col :span="6">
-                  <img src="../../assets/home/ico-php.png" alt="">
-                  <p>PHP-7.4 </p>
-                </el-col>
-                <el-col :span="6">
-                  <img src="../../assets/home/ico-mysql.png" alt="">
-                  <p>MySQL 5.5.62</p>
+                <el-col :span="6" v-for="item in software" :key="item.id">
+                  <el-image :src="item.imgUrl" style="height: 50px;margin: 30px 0 20px;"></el-image>
+                  <p v-text="item.name"></p>
                 </el-col>
                 <el-col :span="6"></el-col>
               </el-row>
@@ -120,6 +114,7 @@
               </el-row>
             </el-row>
           </el-col>
+      <!-------------------------------------------------  流量  -------------------------------------------------------------->
           <el-col class="flux">
             <el-row class="common-hd">流量</el-row>
             <el-row class="flux-bd">
@@ -133,11 +128,34 @@
 </template>
 
 <script>
-import flux from '../charts/flux'
+import flux from "../charts/flux";
+import {   
+  getUserData,
+  getSystemStatus,
+  getSoftware } from '../../api/api'
 export default {
   components: {
-    "app-flux":flux,
-  }
+    "app-flux": flux,
+  },
+  mounted () {
+    Promise.all([getUserData(),getSystemStatus(),getSoftware()])
+    .then(res => {
+      this.userData = res[0]
+      this.systemStatus = res[1]
+      this.software = res[2]
+    })
+  },
+  data() {
+    return {
+      userData: {
+      },
+      systemStatus: {
+        CPURate: 0
+      },
+      software: [
+      ],
+    };
+  },
 };
 </script>
 
@@ -248,7 +266,7 @@ export default {
           color: #999;
           background: #f9f9f9;
 
-          >:last-child {
+          > :last-child {
             font-size: 26px;
             color: #20a53a;
           }
@@ -257,12 +275,8 @@ export default {
     }
 
     .bd-bottom {
-      background: #F2F2F2;
+      background: #f2f2f2;
       box-shadow: 0 0 0 0 #0000;
-
-      > div {
-        
-      }
 
       .software {
         background: #fff;
@@ -276,13 +290,7 @@ export default {
             border-left: 1px solid #ececfb;
             border-bottom: 1px solid #ececfb;
 
-            >img {
-              // width: 50px;
-              height: 50px;
-              margin: 30px 0 20px;
-            }
-
-            >p {
+            > p {
               font-size: 12px;
             }
           }

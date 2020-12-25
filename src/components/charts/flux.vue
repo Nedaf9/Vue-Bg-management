@@ -2,78 +2,106 @@
   <div id="app-flux" style="width: 100%; height: 370px"></div>
 </template>
 <script>
-import * as echarts from 'echarts'
-import "echarts/theme/macarons.js"
+import * as echarts from "echarts";
+import { getFlux } from "../../api/api";
+var myChart
+var option = {
+  title: {
+    text: "",
+  },
+  tooltip: {
+    trigger: "axis",
+    textStyle: {
+      color: "#fff",
+    },
+    axisPointer: {
+      type: "cross",
+      label: {
+        backgroundColor: "#6a7985",
+      },
+    },
+  },
+  color: ["#52A9FF", "#F7B851"],
+  legend: {
+    show: true,
+  },
+  toolbox: {
+    feature: {
+      saveAsImage: {},
+    },
+  },
+  grid: {
+    left: "3%",
+    right: "4%",
+    bottom: "0%",
+    containLabel: true,
+  },
+  xAxis: [
+    {
+      type: "category",
+      boundaryGap: false,
+      data: [],
+    },
+  ],
+  yAxis: [
+    {
+      type: "value",
+    },
+  ],
+  series: [
+    {
+      name: "上行",
+      type: "line",
+      stack: "总量",
+      areaStyle: {},
+      data: [],
+    },
+    {
+      name: "下行",
+      type: "line",
+      stack: "总量",
+      areaStyle: {},
+      data: [],
+    },
+  ],
+};
+
+
+
 export default {
   name: "flux",
   components: {},
-  mounted () {
+  mounted() {
+		myChart = echarts.init(document.getElementById("app-flux"),"macarons");
+
+		function getData () {
+			Promise.resolve(getFlux()).then((res) => {
+				if ( option.xAxis[0].data.length > 8 ) {
+					option.xAxis[0].data.shift()
+					option.series[0].data.shift()
+					option.series[1].data.shift()
+				}
+				option.xAxis[0].data.push(new Date().toString().split(" ")[4])//获取当前时间
+				option.series[0].data.push(res.up)
+				option.series[1].data.push(res.down)
+			});
+		}
+
+		getData();
+
+		setInterval(()=>{//2秒刷新一次获取一次数据
+			getData();
+			this.drawLine();
+		},2000)
     this.drawLine();
   },
-  data () {
-    return {
-    }
+  data() {
+    return {};
   },
   methods: {
-    drawLine () {
-      let myChart = echarts.init(document.getElementById("app-flux"),"macarons");
-      myChart.setOption({
-        title: {
-            text: ''
-        },
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross',
-                label: {
-                    backgroundColor: '#6a7985'
-                }
-            }
-        },
-        legend: {
-            data: ['上行', '下行',]
-        },
-        toolbox: {
-            feature: {
-                saveAsImage: {}
-            }
-        },
-        grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true
-        },
-        xAxis: [
-            {
-                type: 'category',
-                boundaryGap: false,
-                data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-            }
-        ],
-        yAxis: [
-            {
-                type: 'value'
-            }
-        ],
-        series: [
-            {
-                name: '上行',
-                type: 'line',
-                stack: '总量',
-                areaStyle: {},
-                data: [120, 132, 101, 134, 90, 230, 210]
-            },
-            {
-                name: '下行',
-                type: 'line',
-                stack: '总量',
-                areaStyle: {},
-                data: [220, 182, 191, 234, 290, 330, 310]
-            },
-        ]
-      })
-    }
-  }
-}
+    drawLine() {
+      myChart.setOption(option);
+    },
+  },
+};
 </script>
